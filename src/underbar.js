@@ -231,9 +231,9 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
-    _.each(arguments, function(value1){
-      _.each(value1, function(value2){
-        obj[value] = args;
+    _.each(arguments, function(source){
+      _.each(source, function(value, key){
+        obj[key] = source[key];
       });
     });
     return obj;
@@ -242,6 +242,14 @@
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+        _.each(arguments, function(source){
+      _.each(source, function(value, key){
+        if(!(key in obj)){
+          obj[key] = source[key];
+        }
+      });
+    });
+    return obj;
   };
 
 
@@ -285,6 +293,18 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var memo = {};
+    
+    return function(){
+      var args = [].slice.call(arguments);
+
+      if(args in memo){
+        return memo[args];
+      }else{
+        return memo[args] = func.apply(this,args);
+      }
+    }
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -294,6 +314,12 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+
+    var args = [].slice.call(arguments,2);
+
+    return setTimeout(function(){
+      func.apply(this,args);
+    }, wait);
   };
 
 
@@ -308,6 +334,21 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var rndArr = array.slice(0, array.length);
+    var rndIndex;
+    var rndCount = rndArr.length-1;
+    var tempVal;
+
+    while(rndCount > 0){
+      rndIndex = Math.floor(Math.random()*rndCount);
+      tempVal = rndArr[rndCount];
+      rndArr[rndCount] = rndArr[rndIndex];
+      rndArr[rndIndex] = tempVal;
+      rndCount -= 1;
+    }
+
+    return rndArr;
+
   };
 
 
